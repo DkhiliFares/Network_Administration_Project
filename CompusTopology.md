@@ -196,5 +196,3 @@ sudo netplan apply
 - Use `show vlan`, `show ip route`, `show int trunk` to verify.
 
 ---
-
-Would you like me to provide **ready-to-import configuration files** for the devices?
