@@ -110,7 +110,7 @@ Or use the classic line:
 echo -e '[license]\n eve-ng = abcdefghijklmnopqrstuvwxyz1234567890abcdef' > /opt/unetlab/addons/iol/bin/iourc
 ```
 
-*(I can generate a valid key if needed.)*
+
 
 ---
 
