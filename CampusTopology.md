@@ -1,7 +1,7 @@
-To recreate this network topology in **EVE-NG**, follow these detailed steps. This topology includes multiple VLANs across departments and a core network. Here's how to do it step-by-step:
+### ***Campus Topology With Emulated Virtual Environnement - Next Generation (EVE-NG)*** 
 
+![image](https://github.com/user-attachments/assets/e507686f-dfe9-4406-8e11-c0c14bca77cc)
 
-![image](https://github.com/user-attachments/assets/d82c4025-4732-4bf7-b623-6f27b0e1936e)
 
 ---
 
