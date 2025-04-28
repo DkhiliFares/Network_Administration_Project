@@ -234,17 +234,4 @@ ip route 192.168.31.0 255.255.255.0 192.168.13.2
 
 ---
 
-### ✍️ Next Steps (after addressing)
 
-- Activate Routing (on routers/switches if Layer 3)
-- Test Connectivity (ping between hosts)
-- Apply DHCP servers if needed
-- Add ACLs if you want security between VLANs.
-
----
-
-Would you like me also to prepare:
-- A full ready-to-copy configuration file for each device?
-- A diagram with IPs and VLAN numbers included?
-  
-👉 Tell me!
