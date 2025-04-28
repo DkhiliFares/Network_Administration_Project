@@ -41,158 +41,210 @@ To add:
 
 ---
 
-## 🔌 **Step 3: Connect the Devices**
+### 🟩 1. Core Network (Green)
 
-Match the connections shown in your diagram:
+#### 1.1. Server (Ubuntu_SRV)
+- Interface `e0`
+- IP Address: `192.168.10.2/24`
+- Gateway: `192.168.10.1`
 
-- `ubuntu-SRV` → `sw1` (e0/3)
-- `sw1`:
-  - e0/0 → `sw2`
-  - e0/1 → `R1` (f0/0)
-  - e0/2 → `sw3`
-- `sw2`:
-  - e1/0 → `sw21`
-  - e1/1 → `sw22`
-- `sw3`:
-  - e1/0 → `sw31`
-  - e1/1 → `sw32`
+(You can configure it with static IP in `/etc/netplan/` if Ubuntu Server.)
 
-Use **right-click > Add Link** and choose interfaces accordingly.
+#### 1.2. Core Switch (SW1)
+
+This switch interconnects Core and Departments.  
+**Configuration:**
+- Set **VLANs** and **Trunks**:
+
+```bash
+# Create VLANs
+vlan 10
+name Core_SRV
+vlan 11
+name Core_Router
+vlan 12
+name Dep-Math
+vlan 13
+name Dep-Info
+
+# Configure Interfaces
+interface e0/1
+ switchport mode access
+ switchport access vlan 10
+
+interface e0/0
+ switchport mode access
+ switchport access vlan 11
+
+interface e0/2
+ switchport mode trunk
+
+interface e0/3
+ switchport mode trunk
+```
+
+---
+  
+### 🟦 2. Dep-Math Network (Blue)
+
+#### 2.1. Router (R4)
+
+**Configuration:**
+```bash
+# Interface towards Core
+interface e0/0
+ ip address 192.168.12.2 255.255.255.0
+ no shutdown
+
+# Interface towards Switches (trunk)
+interface e0/1
+ no shutdown
+interface e0/2
+ no shutdown
+
+# Enable VLAN interfaces (SVIs or Sub-Interfaces if Router-on-a-Stick)
+interface e0/1.20
+ encapsulation dot1Q 20
+ ip address 192.168.20.1 255.255.255.0
+
+interface e0/1.21
+ encapsulation dot1Q 21
+ ip address 192.168.21.1 255.255.255.0
+```
+
+*Router-on-a-Stick* style.
 
 ---
 
-## 🛠️ **Step 4: Configure VLANs on Access Switches**
+#### 2.2. Switches (SW21 and SW22)
 
-You’ll configure VLANs on `sw21`, `sw22`, `sw31`, `sw32`:
+**Configuration:**
 
-### 📘 **Math Department VLANs on sw2 side:**
-- VLAN 20 – `192.168.20.0/24`
-- VLAN 21 – `192.168.21.0/24`
-
-### 🟧 **Info Department VLANs on sw3 side:**
-- VLAN 30 – `192.168.30.0/24`
-- VLAN 31 – `192.168.31.0/24`
-
-You can do this using IOU/IOL CLI:
-
+On both switches:
 ```bash
-conf t
+# Create VLANs
 vlan 20
-name MATH_VLAN20
+name Math_Dept1
 vlan 21
-name MATH_VLAN21
-exit
-int e0
-switchport mode access
-switchport access vlan 20
-exit
+name Math_Dept2
+
+# Set Access Ports
+interface e0/0
+ switchport mode access
+ switchport access vlan 20 or vlan 21
 ```
-Repeat with the appropriate VLAN numbers and interfaces.
+(Specify depending on client connection.)
 
----
-
-## 🧠 **Step 5: Configure Trunks**
-
-Configure trunks between:
-- `sw1` ↔ `sw2`
-- `sw1` ↔ `sw3`
-
-Example (on `sw1`):
-
+**Link to R4**:
 ```bash
-conf t
-int e0/0
-switchport trunk encapsulation dot1q
-switchport mode trunk
-exit
-int e0/2
-switchport trunk encapsulation dot1q
-switchport mode trunk
-exit
-```
-
-Also configure `sw2`'s e0/0 and `sw3`'s e0/0 as trunks.
-
----
-
-## 🌐 **Step 6: Configure the Core Router (`R1`)**
-
-Configure subinterfaces for inter-VLAN routing:
-
-```bash
-conf t
-int f0/0.20
-encapsulation dot1Q 20
-ip address 192.168.20.1 255.255.255.0
-
-int f0/0.21
-encapsulation dot1Q 21
-ip address 192.168.21.1 255.255.255.0
-
-int f0/0.30
-encapsulation dot1Q 30
-ip address 192.168.30.1 255.255.255.0
-
-int f0/0.31
-encapsulation dot1Q 31
-ip address 192.168.31.1 255.255.255.0
-
-int f0/0.10
-encapsulation dot1Q 10
-ip address 192.168.10.1 255.255.255.0
-
-int f0/0.11
-encapsulation dot1Q 11
-ip address 192.168.11.1 255.255.255.0
-
-int f0/0.12
-encapsulation dot1Q 12
-ip address 192.168.12.1 255.255.255.0
-
-int f0/0.13
-encapsulation dot1Q 13
-ip address 192.168.13.1 255.255.255.0
-```
-
-Make sure to enable routing with:
-```bash
-ip routing
+interface e0/0
+ switchport mode trunk
 ```
 
 ---
 
-## 💻 **Step 7: Configure Ubuntu Server**
+### 🟥 3. Dep-Info Network (Red)
 
-In Ubuntu, set static IP:
+#### 3.1. Switch SW3
+
+Connected to Core and two access switches.
+
+**Configuration:**
+
 ```bash
-sudo nano /etc/netplan/*.yaml
-```
+# Create VLANs
+vlan 30
+name Info_Dept1
+vlan 31
+name Info_Dept2
 
-Example config:
-```yaml
-network:
-  version: 2
-  ethernets:
-    eth0:
-      dhcp4: no
-      addresses:
-        - 192.168.10.2/24
-      gateway4: 192.168.10.1
-      nameservers:
-        addresses: [8.8.8.8]
-```
+# Trunk uplinks to SW31 and SW32
+interface e0/1
+ switchport mode trunk
 
-Then:
-```bash
-sudo netplan apply
+interface e0/2
+ switchport mode trunk
+
+# Trunk to Core (SW1)
+interface e0/0
+ switchport mode trunk
 ```
 
 ---
 
-## ✅ **Step 8: Testing**
+#### 3.2. Switches SW31 and SW32
 
-- Use `ping` from Ubuntu to different VLANs (e.g., `ping 192.168.20.1`).
-- Test inter-VLAN communication.
-- Use `show vlan`, `show ip route`, `show int trunk` to verify.
+Both switches:
+
+```bash
+# VLANs
+vlan 30
+name Info_Dept1
+vlan 31
+name Info_Dept2
+
+# Access Ports
+interface e0/0
+ switchport mode access
+ switchport access vlan 30 or 31
+```
+(Choose VLAN based on connected clients.)
+
+**Link to SW3:**
+```bash
+interface e0/0
+ switchport mode trunk
+```
 
 ---
+
+### ⬜ 4. Router (R1 - Core Router)
+
+Handles the Core subnet (192.168.11.0/24).
+
+**Configuration:**
+```bash
+interface e0/0
+ ip address 192.168.11.1 255.255.255.0
+ no shutdown
+
+# Static Routes to Departments
+ip route 192.168.20.0 255.255.255.0 192.168.12.2
+ip route 192.168.21.0 255.255.255.0 192.168.12.2
+ip route 192.168.30.0 255.255.255.0 192.168.13.2
+ip route 192.168.31.0 255.255.255.0 192.168.13.2
+```
+
+(Assuming R4 has IP 192.168.12.2 and SW3 has an IP 192.168.13.2 on VLAN interface.)
+
+---
+
+### 🌟 Summary of VLANs and Subnets
+
+| VLAN | Subnet            | Department         |
+|:----:|:-----------------:|:------------------:|
+| 10   | 192.168.10.0/24    | Core - Server      |
+| 11   | 192.168.11.0/24    | Core - Router      |
+| 12   | 192.168.12.0/24    | Dep-Math connection |
+| 13   | 192.168.13.0/24    | Dep-Info connection |
+| 20   | 192.168.20.0/24    | Dep-Math Vlan20    |
+| 21   | 192.168.21.0/24    | Dep-Math Vlan21    |
+| 30   | 192.168.30.0/24    | Dep-Info Vlan30    |
+| 31   | 192.168.31.0/24    | Dep-Info Vlan31    |
+
+---
+
+### ✍️ Next Steps (after addressing)
+
+- Activate Routing (on routers/switches if Layer 3)
+- Test Connectivity (ping between hosts)
+- Apply DHCP servers if needed
+- Add ACLs if you want security between VLANs.
+
+---
+
+Would you like me also to prepare:
+- A full ready-to-copy configuration file for each device?
+- A diagram with IPs and VLAN numbers included?
+  
+👉 Tell me!
