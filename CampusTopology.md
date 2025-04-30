@@ -31,7 +31,8 @@ You need to add the following devices:
 |-------------|----------|--------------|
 | L2 Switch   | 6        | sw1, sw2, sw3, sw21, sw22, sw31, sw32 |
 | Router      | 1        | R1           |
-| Ubuntu VM   | 1        | ubuntu-SRV   |
+| Ubuntu server   | 1        | ubuntu-SRV   |
+| Ubuntu Desktop  | 1        |Linux   |
 
 To add:
 1. Right-click > **Add an object > Node**
@@ -42,197 +43,258 @@ To add:
 
 ---
 
-### 🟩 1. Core Network (Green)
 
-#### 1.1. Server (Ubuntu_SRV)
-- Interface `e0`
-- IP Address: `192.168.10.2/24`
-- Gateway: `192.168.10.1`
 
-(You can configure it with static IP in `/etc/netplan/` if Ubuntu Server.)
+## 🗺️ Network Overview
 
-#### 1.2. Core Switch (SW1)
+| **Network Name**     | **Subnet**          | **Purpose**                     |
+|----------------------|---------------------|----------------------------------|
+| Core Server Network  | 192.168.10.0/24     | Ubuntu Server                    |
+| Core Router Segment  | 192.168.11.0/24     | Router R1 ↔ Core Switch (SW1)    |
+| Math Transit         | 192.168.12.0/24     | Core ↔ Math Main Switch (SW2)    |
+| Info Transit         | 192.168.13.0/24     | Core ↔ Info Main Switch (SW3)    |
+| VLAN 20 (Math)       | 192.168.20.0/24     | Math Department                  |
+| VLAN 21 (Math)       | 192.168.21.0/24     | Math Department                  |
+| VLAN 30 (Info)       | 192.168.30.0/24     | Info Department                  |
+| VLAN 31 (Info)       | 192.168.31.0/24     | Info Department                  |
 
-This switch interconnects Core and Departments.  
-**Configuration:**
-- Set **VLANs** and **Trunks**:
+---
+
+## 🧩 Device Configuration Summary
+
+| **Device**     | **Interfaces**                         | **IP Address/Subnet**        | **Role**                    |
+|----------------|----------------------------------------|-------------------------------|-----------------------------|
+| Ubuntu_SRV     | e0                                     | 192.168.10.2/24               | Server                      |
+| Linux PC       | e0                                     | 192.168.11.10/24              | Test PC                     |
+| R1             | e0/0, e0/1                             | e0/0: 192.168.11.1/24         | Gateway & Static Routing    |
+| SW1 (Core)     | e0/0 – e0/3                            | VLAN10: .10.1, VLAN11: .11.2… | L3 Switch – Core            |
+| SW2 (Math)     | e0/0 – e0/2                            | VLAN20: .20.1, VLAN21: .21.1  | L3 Switch – Math Dept       |
+| SW21 (Math A)  | e0/0                                   | Access VLAN 20                | Access Switch               |
+| SW22 (Math B)  | e0/0                                   | Access VLAN 21                | Access Switch               |
+| SW3 (Info)     | e0/0 – e0/2                            | VLAN30: .30.1, VLAN31: .31.1  | L3 Switch – Info Dept       |
+| SW31 (Info A)  | e0/0                                   | Access VLAN 30                | Access Switch               |
+| SW32 (Info B)  | e0/0                                   | Access VLAN 31                | Access Switch               |
+
+---
+
+## 🖥️ Host Configuration (Linux)
+
+### ✅ Ubuntu_SRV
 
 ```bash
-# Create VLANs
-vlan 10
-name Core_SRV
-vlan 11
-name Core_Router
-vlan 12
-name Dep-Math
-vlan 13
-name Dep-Info
+ip addr add 192.168.10.2/24 dev eth0
+ip route add default via 192.168.10.1
+```
 
-# Configure Interfaces
-interface e0/1
- switchport mode access
- switchport access vlan 10
+### ✅ Linux PC
+
+```bash
+ip addr add 192.168.11.10/24 dev eth0
+ip route add default via 192.168.11.1
+```
+
+---
+
+## 🔧 CLI Configuration for Each Network Device
+
+### ⚙️ Router – **R1**
+```bash
+enable
+conf t
 
 interface e0/0
- switchport mode access
- switchport access vlan 11
+ip address 192.168.11.1 255.255.255.0
+no shutdown
+
+interface e0/1
+ip address 192.168.11.254 255.255.255.0
+no shutdown
+
+! Static routes to internal VLANs
+ip route 192.168.10.0 255.255.255.0 192.168.11.2
+ip route 192.168.12.0 255.255.255.0 192.168.11.2
+ip route 192.168.13.0 255.255.255.0 192.168.11.2
+ip route 192.168.20.0 255.255.255.0 192.168.11.2
+ip route 192.168.21.0 255.255.255.0 192.168.11.2
+ip route 192.168.30.0 255.255.255.0 192.168.11.2
+ip route 192.168.31.0 255.255.255.0 192.168.11.2
+
+end
+wr
+```
+
+---
+
+### ⚙️ Core L3 Switch – **SW1**
+
+```bash
+enable
+conf t
+
+vlan 10
+vlan 11
+vlan 12
+vlan 13
+
+interface vlan 10
+ip address 192.168.10.1 255.255.255.0
+no shutdown
+
+interface vlan 11
+ip address 192.168.11.2 255.255.255.0
+no shutdown
+
+interface vlan 12
+ip address 192.168.12.1 255.255.255.0
+no shutdown
+
+interface vlan 13
+ip address 192.168.13.1 255.255.255.0
+no shutdown
+
+interface e0/0
+switchport mode access
+switchport access vlan 11
+
+interface e0/1
+switchport mode access
+switchport access vlan 10
 
 interface e0/2
- switchport mode trunk
+switchport mode trunk
+switchport trunk allowed vlan 12,20,21
 
 interface e0/3
- switchport mode trunk
+switchport mode trunk
+switchport trunk allowed vlan 13,30,31
+
+ip routing
+end
+wr
 ```
 
 ---
-  
-### 🟦 2. Dep-Math Network (Blue)
 
-#### 2.1. Router (R4)
+### ⚙️ Math L3 Switch – **SW2**
 
-**Configuration:**
 ```bash
-# Interface towards Core
-interface e0/0
- ip address 192.168.12.2 255.255.255.0
- no shutdown
+enable
+conf t
 
-# Interface towards Switches (trunk)
-interface e0/1
- no shutdown
-interface e0/2
- no shutdown
-
-# Enable VLAN interfaces (SVIs or Sub-Interfaces if Router-on-a-Stick)
-interface e0/1.20
- encapsulation dot1Q 20
- ip address 192.168.20.1 255.255.255.0
-
-interface e0/1.21
- encapsulation dot1Q 21
- ip address 192.168.21.1 255.255.255.0
-```
-
-*Router-on-a-Stick* style.
-
----
-
-#### 2.2. Switches (SW21 and SW22)
-
-**Configuration:**
-
-On both switches:
-```bash
-# Create VLANs
 vlan 20
-name Math_Dept1
 vlan 21
-name Math_Dept2
 
-# Set Access Ports
+interface vlan 20
+ip address 192.168.20.1 255.255.255.0
+no shutdown
+
+interface vlan 21
+ip address 192.168.21.1 255.255.255.0
+no shutdown
+
 interface e0/0
- switchport mode access
- switchport access vlan 20 or vlan 21
-```
-(Specify depending on client connection.)
+switchport mode trunk
+switchport trunk allowed vlan 12,20,21
 
-**Link to R4**:
-```bash
-interface e0/0
- switchport mode trunk
-```
-
----
-
-### 🟥 3. Dep-Info Network (Red)
-
-#### 3.1. Switch SW3
-
-Connected to Core and two access switches.
-
-**Configuration:**
-
-```bash
-# Create VLANs
-vlan 30
-name Info_Dept1
-vlan 31
-name Info_Dept2
-
-# Trunk uplinks to SW31 and SW32
 interface e0/1
- switchport mode trunk
+switchport mode access
+switchport access vlan 20
 
 interface e0/2
- switchport mode trunk
+switchport mode access
+switchport access vlan 21
 
-# Trunk to Core (SW1)
-interface e0/0
- switchport mode trunk
+ip routing
+end
+wr
 ```
 
 ---
 
-#### 3.2. Switches SW31 and SW32
-
-Both switches:
+### ⚙️ Info L3 Switch – **SW3**
 
 ```bash
-# VLANs
+enable
+conf t
+
 vlan 30
-name Info_Dept1
 vlan 31
-name Info_Dept2
 
-# Access Ports
+interface vlan 30
+ip address 192.168.30.1 255.255.255.0
+no shutdown
+
+interface vlan 31
+ip address 192.168.31.1 255.255.255.0
+no shutdown
+
 interface e0/0
- switchport mode access
- switchport access vlan 30 or 31
-```
-(Choose VLAN based on connected clients.)
+switchport mode trunk
+switchport trunk allowed vlan 13,30,31
 
-**Link to SW3:**
+interface e0/1
+switchport mode access
+switchport access vlan 30
+
+interface e0/2
+switchport mode access
+switchport access vlan 31
+
+ip routing
+end
+wr
+```
+
+---
+
+### ⚙️ Access Switches (SW21, SW22, SW31, SW32)
+
+#### Example – **SW21 (VLAN 20)**
+
 ```bash
+enable
+conf t
+vlan 20
 interface e0/0
- switchport mode trunk
+switchport mode access
+switchport access vlan 20
+end
+wr
 ```
+
+> Do the same for:
+- SW22 (use VLAN 21)
+- SW31 (use VLAN 30)
+- SW32 (use VLAN 31)
 
 ---
 
-### ⬜ 4. Router (R1 - Core Router)
+## 🧪 Verification Commands
 
-Handles the Core subnet (192.168.11.0/24).
+### On Layer 3 Switches / Routers:
 
-**Configuration:**
 ```bash
-interface e0/0
- ip address 192.168.11.1 255.255.255.0
- no shutdown
-
-# Static Routes to Departments
-ip route 192.168.20.0 255.255.255.0 192.168.12.2
-ip route 192.168.21.0 255.255.255.0 192.168.12.2
-ip route 192.168.30.0 255.255.255.0 192.168.13.2
-ip route 192.168.31.0 255.255.255.0 192.168.13.2
+show ip interface brief
+show vlan brief
+show ip route
+ping 192.168.10.2
+ping 192.168.20.10
 ```
 
-(Assuming R4 has IP 192.168.12.2 and SW3 has an IP 192.168.13.2 on VLAN interface.)
+### On Linux Hosts:
+
+```bash
+ip addr
+ping 192.168.11.1
+ping 192.168.10.2
+```
 
 ---
 
-### 🌟 Summary of VLANs and Subnets
+## 🧾 Notes
 
-| VLAN | Subnet            | Department         |
-|:----:|:-----------------:|:------------------:|
-| 10   | 192.168.10.0/24    | Core - Server      |
-| 11   | 192.168.11.0/24    | Core - Router      |
-| 12   | 192.168.12.0/24    | Dep-Math connection |
-| 13   | 192.168.13.0/24    | Dep-Info connection |
-| 20   | 192.168.20.0/24    | Dep-Math Vlan20    |
-| 21   | 192.168.21.0/24    | Dep-Math Vlan21    |
-| 30   | 192.168.30.0/24    | Dep-Info Vlan30    |
-| 31   | 192.168.31.0/24    | Dep-Info Vlan31    |
+- All trunk links must **explicitly allow proper VLANs**.
+- Each department switch must have **SVIs configured** for inter-VLAN routing.
+- Core switch (SW1) acts as the backbone for routing between departments.
 
 ---
-
-
