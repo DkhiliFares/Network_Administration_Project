@@ -24,15 +24,15 @@ It includes full setup instructions from scratch, including installing EVE-NG, a
 
 You can follow each of the following guides in order to reproduce the full setup:
 
-### 1️⃣ [EVE-NG Installation](./EVE_NG_Installation.md))
+### 1️⃣ [EVE-NG Installation](./EVE_NG_Installation.md)
 
 > Install and prepare the EVE-NG environment on your machine.
 
-### 2️⃣ [Adding Cisco IOL Images](./addi.md)
+### 2️⃣ [Adding Cisco IOL Images](./AddingCiscoIOL_in_EVE-NG_Machine.md)
 
 > Learn how to import and configure Cisco IOS (IOL) router and switch images for EVE-NG.
 
-### 3️⃣ [Adding Linux Images (QEMU)](./adding%20linux%20images.md)
+### 3️⃣ [Adding Linux Images (QEMU)](./Adding_LinuxImages(Qemu).md)
 
 > Add Ubuntu Desktop and Server images for client and server simulation inside your virtual lab.
 
@@ -40,7 +40,7 @@ You can follow each of the following guides in order to reproduce the full setup
 
 ## 🏛️ Campus Topology Design
 
-### 4️⃣ [Campus Topology](./campus%20topology.md)
+### 4️⃣ [Campus Topology](./CampusTopology.md)
 
 > Build a real-world style multi-VLAN campus network composed of core, math, and info departments with inter-switch links and proper subnetting.
 
@@ -48,11 +48,11 @@ You can follow each of the following guides in order to reproduce the full setup
 
 ## 📈 Network Monitoring Tools Configuration
 
-### 5️⃣ [Zabbix Configuration](./zabbixconfiguration.md)
+### 5️⃣ [Zabbix Configuration](./ZabbixConfiguration.md)
 
 > Deploy Zabbix on Ubuntu Server to monitor network devices, applications, services, and system performance.
 
-### 6️⃣ [Akvorado Configuration](./akvoradoconfiguration.md)
+### 6️⃣ [Akvorado Configuration](./AkvoradoConfiguration.md)
 
 > Collect and visualize NetFlow/sFlow traffic data using Akvorado to analyze flow patterns and bandwidth usage.
 
