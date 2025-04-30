@@ -24,11 +24,11 @@ It includes full setup instructions from scratch, including installing EVE-NG, a
 
 You can follow each of the following guides in order to reproduce the full setup:
 
-### 1️⃣ [EVE-NG Installation](./eve%20ng%20installation.md)
+### 1️⃣ [EVE-NG Installation](./EVE_NG_Installation.md))
 
 > Install and prepare the EVE-NG environment on your machine.
 
-### 2️⃣ [Adding Cisco IOL Images](./adding%20cisco%20iol.md)
+### 2️⃣ [Adding Cisco IOL Images](./addi.md)
 
 > Learn how to import and configure Cisco IOS (IOL) router and switch images for EVE-NG.
 
