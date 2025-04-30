@@ -12,13 +12,15 @@ La supervision couvre plusieurs VLANs répartis entre deux départements, avec d
 ---
 
 ## 🧱 Architecture réseau
+![image](https://github.com/user-attachments/assets/ad979aef-2144-42f4-8c8b-6afe75b384a1)
+
 
 ### VLANs et sous-réseaux :
 | Département | VLAN | Sous-réseau |
 |------------|------|-------------|
 | Core       | -    | 192.168.10.0/24, 192.168.11.0/24, 192.168.12.0/24, 192.168.13.0/24 |
-| Dep-Math   | 20   | 192.168.20.0/24, 192.168.21.0/24 |
-| Dep-Info   | 20   | 192.168.30.0/24, 192.168.31.0/24 |
+| Dep-Math   | 20/21   | 192.168.20.0/24, 192.168.21.0/24 |
+| Dep-Info   | 30/31 | 192.168.30.0/24, 192.168.31.0/24 |
 
 ### Équipements :
 | Nom          | Rôle               | Interface de management | OS / Plateforme        |
