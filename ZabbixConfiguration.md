@@ -184,6 +184,5 @@ sudo systemctl enable zabbix-agent
 
 - Simulation: [EVE-NG Community Edition](https://www.eve-ng.net/)
 - Supervision: [Zabbix Official Site](https://www.zabbix.com/)
-```
 
 ---
