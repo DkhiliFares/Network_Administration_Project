@@ -1,6 +1,7 @@
 # *Campus Topology With Emulated Virtual Environnement - Next Generation (EVE-NG)*
 
-![image](https://github.com/user-attachments/assets/e507686f-dfe9-4406-8e11-c0c14bca77cc)
+![image](https://github.com/user-attachments/assets/39922c8a-d7db-4327-b72c-f30ece5fc3d2)
+
 
 
 ---
