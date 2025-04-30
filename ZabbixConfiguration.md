@@ -1,8 +1,4 @@
-Parfait ! Voici un **guide complet et corrigé** pour déployer **Zabbix** dans ta topologie réseau EVE-NG, en prenant en compte que `R4` est en réalité un **switch nommé SW2**. Ce guide est prêt à être publié dans ton **GitHub** sous forme de fichier `README.md`.
 
----
-
-```markdown
 # 📡 Supervision Réseau avec Zabbix – Projet EVE-NG
 
 Ce projet met en œuvre la **surveillance des performances réseau** et des équipements via **Zabbix** dans une topologie simulée sous **EVE-NG**.  
@@ -31,7 +27,6 @@ La supervision couvre plusieurs VLANs répartis entre deux départements, avec d
 | SW21, SW22    | Access switches Dep-Math | -                  | Cisco Switch            |
 | SW31, SW32    | Access switches Dep-Info | -                  | Cisco Switch            |
 
----
 
 ## ⚙️ Étapes d'installation de Zabbix
 
