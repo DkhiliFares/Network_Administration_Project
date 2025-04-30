@@ -5,6 +5,11 @@ Ce projet met en œuvre la **surveillance des performances réseau** et des équ
 La supervision couvre plusieurs VLANs répartis entre deux départements, avec des switches, des VM Ubuntu et un serveur Zabbix.
 
 ---
+## 🧠 À propos de Zabbix
+
+**Zabbix** est une solution open-source de supervision permettant de collecter, stocker et analyser les données de performance et de disponibilité. Elle utilise différents moyens (Agent, SNMP, IPMI, etc.) pour superviser les machines, routeurs, switches et applications.
+
+---
 
 ## 🧱 Architecture réseau
 
@@ -22,7 +27,7 @@ La supervision couvre plusieurs VLANs répartis entre deux départements, avec d
 | Ubuntu Desktop| Client Web          | 192.168.10.Y             | Ubuntu Desktop          |
 | R1            | Routeur principal   | 192.168.11.X             | Cisco Router (IOL)      |
 | SW1           | Switch Core         | 192.168.10-13.X          | Cisco Switch (IOL)      |
-| SW2 (ancien R4)| Switch Département Dep-Math | 192.168.12.X     | Cisco Switch (IOL)      |
+| SW2           | Switch Département Dep-Math | 192.168.12.X     | Cisco Switch (IOL)      |
 | SW3           | Switch Département Dep-Info | 192.168.13.X     | Cisco Switch (IOL)      |
 | SW21, SW22    | Access switches Dep-Math | -                  | Cisco Switch            |
 | SW31, SW32    | Access switches Dep-Info | -                  | Cisco Switch            |
@@ -153,11 +158,7 @@ sudo systemctl enable zabbix-agent
 
 ---
 
-## 🧠 À propos de Zabbix
 
-**Zabbix** est une solution open-source de supervision permettant de collecter, stocker et analyser les données de performance et de disponibilité. Elle utilise différents moyens (Agent, SNMP, IPMI, etc.) pour superviser les machines, routeurs, switches et applications.
-
----
 
 ## 📂 Crédits
 
@@ -165,6 +166,3 @@ sudo systemctl enable zabbix-agent
 - Outils : Ubuntu Server/Desktop, Cisco IOL, Zabbix
 ```
 
----
-
-Souhaites-tu aussi un **diagramme de résumé en image** à insérer dans ton README GitHub ?
