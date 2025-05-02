@@ -52,6 +52,7 @@ It supports agents, SNMP, ICMP, IPMI, and more protocols for data collection.
 sudo apt update && sudo apt upgrade -y
 
 ### 🟢 2. Add Zabbix Repository
+---
 ```bash
 wget https://repo.zabbix.com/zabbix/6.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_6.4-1+ubuntu22.04_all.deb
 sudo dpkg -i zabbix-release_6.4-1+ubuntu22.04_all.deb
