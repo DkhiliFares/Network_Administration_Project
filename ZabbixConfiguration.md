@@ -50,7 +50,7 @@ It supports agents, SNMP, ICMP, IPMI, and more protocols for data collection.
 ### 🟢 1. System Update
 ```bash
 sudo apt update && sudo apt upgrade -y
-
+```
 ### 🟢 2. Add Zabbix Repository
 ---
 ```bash
